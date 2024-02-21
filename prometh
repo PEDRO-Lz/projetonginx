@@ -141,3 +141,66 @@ sudo systemctl enable grafana-server
 Agora você pode acessar o Grafana através do navegador web, digitando o endereço IP do servidor com a porta 3000 (padrão do Grafana). O nome de usuário e senha padrão são ambos "admin". Após o login, você poderá configurar os painéis para visualizar as métricas coletadas pelo Prometheus.
 
 Com esses passos, você terá o Prometheus e o Grafana instalados e prontos para monitorar seus projetos Django. Lembre-se de ajustar as configurações de acordo com suas necessidades específicas.
+
+
+
+
+
+
+exporter
+
+
+    Baixe o Exportador HTTP do Prometheus para o Nginx do repositório oficial do GitHub:
+
+bash
+
+wget https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v0.10.0/nginx-prometheus-exporter_0.10.0_linux_amd64.tar.gz
+
+    Extraia o arquivo baixado:
+
+bash
+
+tar -xzvf nginx-prometheus-exporter_0.10.0_linux_amd64.tar.gz
+
+    Copie o binário nginx-prometheus-exporter para um local adequado no seu sistema, como /usr/local/bin:
+
+bash
+
+sudo cp nginx-prometheus-exporter /usr/local/bin
+
+    Crie um arquivo de serviço systemd para o Exportador HTTP do Prometheus do Nginx:
+
+bash
+
+sudo nano /etc/systemd/system/nginx-prometheus-exporter.service
+
+Cole o seguinte conteúdo no arquivo de serviço:
+
+plaintext
+
+[Unit]
+Description=Nginx Prometheus Exporter
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/nginx-prometheus-exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+    Salve o arquivo e saia do editor.
+
+    Recarregue os serviços systemd para carregar o novo arquivo de serviço:
+
+bash
+
+sudo systemctl daemon-reload
+
+    Inicie o serviço do Exportador HTTP do Prometheus do Nginx e habilite-o para iniciar na inicialização:
+
+bash
+
+sudo systemctl start nginx-prometheus-exporter
+sudo systemctl enable nginx-prometheus-exporter
