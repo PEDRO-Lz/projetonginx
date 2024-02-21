@@ -1,0 +1,143 @@
+Instalação do Prometheus:
+
+Passo 1: Faça o download do pacote do Prometheus do site oficial:
+
+bash
+
+wget https://github.com/prometheus/prometheus/releases/download/v2.30.3/prometheus-2.30.3.linux-amd64.tar.gz
+
+Passo 2: Extraia o arquivo baixado:
+
+bash
+
+tar xvfz prometheus-*.tar.gz
+
+Passo 3: Entre no diretório extraído:
+
+bash
+
+cd prometheus-*
+
+Passo 4: Copie os binários para o diretório /usr/local/bin:
+
+bash
+
+sudo cp prometheus promtool /usr/local/bin/
+
+Passo 5: Crie um usuário e um grupo para o Prometheus:
+
+bash
+
+sudo useradd --no-create-home --shell /bin/false prometheus
+sudo chown prometheus:prometheus /usr/local/bin/prometheus
+sudo chown prometheus:prometheus /usr/local/bin/promtool
+
+Passo 6: Crie o diretório de dados do Prometheus:
+
+bash
+
+sudo mkdir /etc/prometheus
+sudo mkdir /var/lib/prometheus
+sudo chown prometheus:prometheus /var/lib/prometheus
+
+Passo 7: Copie os arquivos de configuração padrão:
+
+bash
+
+sudo cp -r consoles/ console_libraries/ /etc/prometheus/
+
+Passo 8: Defina as permissões adequadas:
+
+bash
+
+sudo chown -R prometheus:prometheus /etc/prometheus/consoles
+sudo chown -R prometheus:prometheus /etc/prometheus/console_libraries
+
+Passo 9: Crie um arquivo de configuração do Prometheus:
+
+bash
+
+sudo nano /etc/prometheus/prometheus.yml
+
+Adicione o seguinte conteúdo básico ao arquivo de configuração:
+
+yaml
+
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'django'
+    static_configs:
+      - targets: ['192.168.0.81:8000', '192.168.0.82:8000']
+
+Substitua os endereços IP e portas pelos endereços do seu projeto Django.
+
+Passo 10: Inicie o serviço do Prometheus:
+
+bash
+
+sudo nano /etc/systemd/system/prometheus.service
+
+Cole o seguinte conteúdo:
+
+plaintext
+
+[Unit]
+Description=Prometheus Server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+
+Então, inicie e habilite o serviço:
+
+bash
+
+sudo systemctl daemon-reload
+sudo systemctl start prometheus
+sudo systemctl enable prometheus
+
+Agora o Prometheus deve estar instalado e em execução.
+Instalação do Grafana:
+
+Passo 1: Adicione a chave GPG do Grafana:
+
+bash
+
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+
+Passo 2: Adicione o repositório do Grafana ao seu sistema:
+
+bash
+
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+
+Passo 3: Atualize o índice de pacotes e instale o Grafana:
+
+bash
+
+sudo apt update
+sudo apt install grafana
+
+Passo 4: Inicie e habilite o serviço do Grafana:
+
+bash
+
+sudo systemctl start grafana-server
+sudo systemctl enable grafana-server
+
+Agora você pode acessar o Grafana através do navegador web, digitando o endereço IP do servidor com a porta 3000 (padrão do Grafana). O nome de usuário e senha padrão são ambos "admin". Após o login, você poderá configurar os painéis para visualizar as métricas coletadas pelo Prometheus.
+
+Com esses passos, você terá o Prometheus e o Grafana instalados e prontos para monitorar seus projetos Django. Lembre-se de ajustar as configurações de acordo com suas necessidades específicas.
