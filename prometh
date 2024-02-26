@@ -204,3 +204,14 @@ bash
 
 sudo systemctl start nginx-prometheus-exporter
 sudo systemctl enable nginx-prometheus-exporter
+
+
+
+xxxxxxxxxxxxxxxx
+
+
+http://192.168.0.81:8000/metrics	DOWN	
+instance="192.168.0.81:8000"job="django"
+	8.79s ago	
+0.235ms
+	Get "http://192.168.0.81:8000/metrics": dial tcp 192.168.0.81:8000: connect: connection refused
